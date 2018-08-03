@@ -134,6 +134,7 @@
  (test (run '{length {Empty}}) 0)
  (test (run '{length {Cons 1 {Cons 2 {Cons 3 {Empty}}}}}) 3)
  (test (run '{length {Cons 1 {Cons 2 {Empty}}}}) 2)
+  
 ;; tests for run (Listas parte 3)
  (test(run '{match {list {+ 1 1} 4 6}
           {case {Cons h r} => h}
@@ -146,7 +147,7 @@
 
  (test(run '{match {list {list 1 1} 4 6}
           {case {Cons h r} => h}
-          {case _ => 0}}) "{Cons 1 {Cons 1 {Empty}}}")
+          {case _ => 0}}) "{list 1 1}")
 
 ;; tests for run (Listas parte 4)
 (test (run '{match {list 2 {list 4 5} 6}
@@ -159,7 +160,19 @@
               {case {list {list a} {list b}} => #t}
               {case {list a b} => #f}}) #t
                                         )
+;; test for run (Listas parte 5)
+  (test (run '{list 1 4 6}) "{list 1 4 6}" )
+ (test (run '{list {list 1 3} 4 6}) "{list {list 1 3} 4 6}" )
+  
+;; tests for pretty printing(Listas parte 5)
+
+ (test (pretty-printing (structV 'List 'Cons
+                                 (list 1 (structV 'List 'Cons
+                                                (list 2 (structV 'List 'Empty empty))))))
+       "{list 1 2}" )
+
   )
+
 
 
 

@@ -292,18 +292,25 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Tarea2
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-
+(define acc  " {list")
 ;;pretty-printing: struct -> string
 ;;imprime una estructura en formato string amigable
 (define (pretty-printing expr)
+  (define (print-list arg)
+    (match arg
+      [(list) "}"]
+      [(list val (structV 'List var val2)) (string-append (pretty-printing-aux val) (print-list val2))]
+    ))
   (define (pretty-printing-aux expr) (match expr
     [(? number? n) (string-append " " (number->string n))]
     [#f " #f"]
     [#t " #t"]
     ['() ""]
-    [(list first tail ...) (string-append(pretty-printing-aux first) (pretty-printing-aux tail))]
+    [(list first tail ...) (string-append(pretty-printing-aux first) (pretty-printing-aux tail))]  
+    [(structV 'List var val) (string-append " {list"(print-list val) )]
     [(structV name var val) (string-append " {" (symbol->string var) (pretty-printing-aux val)"}") ]
     [_ ""]
     ))
  (substring (pretty-printing-aux expr) 1)
   )
+

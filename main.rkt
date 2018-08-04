@@ -142,14 +142,30 @@
          (interp f env))]
     ; identifier
     [(id x) (env-lookup x env)]
+    
     ; function (notice the meta interpretation)
     [(fun ids body)
      (λ (arg-vals)
        (interp body (extend-env ids arg-vals env)))]
+    
     ; application
     [(app fun-expr arg-expr-list)
-     ((interp fun-expr env)
-      (map (λ (a) (interp a env)) arg-expr-list))]
+     ;problema ! la aplicacion de valor a los identificadores tambien
+     ;cae en este caso y no cumple el patrón:
+ 
+     (match fun-expr
+       [(fun ids body)((interp fun-expr env)(map (λ (id a)
+             (match id
+               [(list 'lazy x) (exprV a env (box #f))]
+               [ _ (strict (interp a env))])) ids arg-expr-list))]
+       [(id name)((interp fun-expr env) (map (lambda(x) (interp x env)) arg-expr-list))])]
+     ;(def (fun ids body) fun-expr)
+     ;((interp fun-expr env)
+      ;(map (λ (id a)
+         ;    (match id
+          ;     [(list 'lazy x) (exprV a env (box #f))]
+           ;    [ _ (strict (interp a env))])) ids arg-expr-list))]
+    
     ; primitive application
     [(prim-app prim arg-expr-list)
      (apply (cadr (assq prim *primitives*))
@@ -292,7 +308,7 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Tarea2
 ;;;;;;;;;;;;;;;;;;;;;;;;;
-(define acc  " {list")
+
 ;;pretty-printing: struct -> string
 ;;imprime una estructura en formato string amigable
 (define (pretty-printing expr)
@@ -313,4 +329,34 @@ update-env! :: Sym Val Env -> Void
     ))
  (substring (pretty-printing-aux expr) 1)
   )
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Implementacion de lazyness
+;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; tipo de dato Val visto en clases
+(deftype Val
+  (numV n)
+  (closureV arg body env)
+  (exprV expr env cache))
+
+; funcio strict vista en clases 04/26
+; strict :: Val -> Val (only numV or closureV)
+(define (strict v)
+  (match v
+    [(exprV expr env cache)
+     (if (unbox cache)
+         ;(begin
+          ; (printf "using cached value for ~v ~n" expr)
+           (unbox cache)
+           ;)
+         (begin
+           ;(printf "forcing ~v ~n" expr)
+           (let ([val (strict (interp expr env))])
+             (set-box! cache val)
+             val))
+         )]
+    [ _ v]))
+
+
+
 

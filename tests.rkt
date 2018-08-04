@@ -172,8 +172,11 @@
        "{list 1 2}" )
 
   )
+;;;;;;;;;;;;;;;;;;;;
+;EVALUACIÓN PEREZOSA
+;;;;;;;;;;;;;;;;;;;;
 
-
+;;; call-by-need tests 
 
 
 

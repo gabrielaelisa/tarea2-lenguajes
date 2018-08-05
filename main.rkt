@@ -145,25 +145,39 @@
     
     ; function (notice the meta interpretation)
     [(fun ids body)
-     ;(λ (arg-vals)
-      ; (interp body (extend-env ids arg-vals env)))]
-    (closureV ids body env)]
+     (λ (arg-vals)
+       (interp body (extend-env ids arg-vals env)))]
+    
     ; application
     [(app fun-expr arg-expr-list)
      ; problema guardar en la funcion el closure del ambiente
-     (match (strict(interp fun-expr env))
-       [(closureV ids body cl-env)((λ (arg)
-                                  (interp body (extend-env ids arg cl-env)))
+     (match fun-expr
+       [(fun ids body)((interp fun-expr env)
            (map (λ (id a)
              (match id
                [(list 'lazy x) (exprV a env (box #f))]
                [ _  (strict(interp a env))])) ids arg-expr-list))]
-       [_
-       (match fun-expr
-         [(id i) ((interp fun-expr env)
+       
+       [(id i) (match (env-lookup i env)
+                 [(closureV fun params env) (displayln "lookup")
+                  (fun
+                  (map (λ (id a)
+                         (match id
+                           [(list 'lazy x) (displayln "lookup") (exprV a env (box #f))]
+                           [else
+                            (match a
+                                              [(structV val b c) a ]
+                                              [else (strict (interp a env))])])) params arg-expr-list))]
+                 [(list 'lazy x) (interp fun-expr env)(exprV arg-expr-list env (box #f))]
+                 [ _ (interp fun-expr env)(map (lambda(x) (interp x env)) arg-expr-list) ])])]
+       
+                  
+
+        #;((interp fun-expr env)
                   (match (env-lookup i env)
                    [(list 'lazy x) (exprV arg-expr-list env (box #f))]
-                   [ _ (map (lambda(x) (interp x env)) arg-expr-list) ]))])])]
+                   [ _ (map (lambda(x) (interp x env)) arg-expr-list) ]))
+           
     
     ; primitive application
     [(prim-app prim arg-expr-list)
@@ -196,19 +210,28 @@
 
 ; interp-datatype :: String Env -> Void
 (define(interp-datatype name env)
+
   ; datatype predicate, eg. Nat?
   (update-env! (string->symbol (string-append (symbol->string name) "?"))
                (λ (v) (symbol=? (structV-name (first v)) name))
                env))
 
 ; interp-variant :: String String Env -> Void
-(define(interp-variant name var env)  
+(define(interp-variant name var env)
+
   ;; name of the variant or dataconstructor
-  (def varname (variant-name var))  
+  (def varname (variant-name var))
+  (def params (variant-params var))
+
   ;; variant data constructor, eg. Zero, Succ
-  (update-env! varname
-               (λ (args) (structV name varname args))
-               env)
+  #;(define (fun args params env)
+                  (if ( = (length params) 0)
+                      (list)
+                      (if (match (first params) [(list 'lazy x) #t][_ #f])
+                          (append (exprV (first args) env (box #f)) (fun (rest args) (rest params)))
+                          (append (first args) (fun (rest args) (rest params))))
+                      ))
+  (update-env! varname (closureV (λ (args) (structV name varname args)) params env) env)
   ;; variant predicate, eg. Zero?, Succ?
   (update-env! (string->symbol (string-append (symbol->string varname) "?"))
                (λ (v) (symbol=? (structV-variant (first v)) varname))

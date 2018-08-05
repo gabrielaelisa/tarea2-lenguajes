@@ -180,5 +180,6 @@
 (test/exn  (run '{{fun {x  y} x} 1 {/ 1 0}}) "/: division by zero")
 (test (run '{{fun {x  {lazy y}} x} 1 {/ 1 0}}) 1)
 (test (run '{local {{define {lazy x} {/ 1 0}}{define y {+ 1 2}}} y}) 3)  
-)
+  )
+
 

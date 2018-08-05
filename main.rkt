@@ -145,20 +145,25 @@
     
     ; function (notice the meta interpretation)
     [(fun ids body)
-     (λ (arg-vals)
-       (interp body (extend-env ids arg-vals env)))]
-    
+     ;(λ (arg-vals)
+      ; (interp body (extend-env ids arg-vals env)))]
+    (closureV ids body env)]
     ; application
     [(app fun-expr arg-expr-list)
      ; problema guardar en la funcion el closure del ambiente
- 
-     (match fun-expr
-       [(fun ids body)((interp fun-expr env)(map (λ (id a)
+     (match (strict(interp fun-expr env))
+       [(closureV ids body cl-env)((λ (arg)
+                                  (interp body (extend-env ids arg cl-env)))
+           (map (λ (id a)
              (match id
                [(list 'lazy x) (exprV a env (box #f))]
-               [ _ (match a [(structV ame b c)  a]
-                            [_ (strict (interp a env))])])) ids arg-expr-list))]
-       [(id name)((interp fun-expr env) (map (lambda(x) (interp x env)) arg-expr-list))])]
+               [ _  (strict(interp a env))])) ids arg-expr-list))]
+       [_
+       (match fun-expr
+         [(id i) ((interp fun-expr env)
+                  (match (env-lookup i env)
+                   [(list 'lazy x) (exprV arg-expr-list env (box #f))]
+                   [ _ (map (lambda(x) (interp x env)) arg-expr-list) ]))])])]
     
     ; primitive application
     [(prim-app prim arg-expr-list)
@@ -180,7 +185,10 @@
 (define(interp-def d env)
   (match d
     [(dfine id val-expr)
-     (update-env! id (interp val-expr env) env)]
+     ;;; agregado
+     (match id
+       [(list 'lazy x) (update-env! x (exprV val-expr env (box #f)) env)]
+       [_ (update-env! id (interp val-expr env) env)])]
     [(datatype name variants)
      ;; extend environment with new definitions corresponding to the datatype
      (interp-datatype name env)

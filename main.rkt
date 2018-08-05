@@ -150,21 +150,15 @@
     
     ; application
     [(app fun-expr arg-expr-list)
-     ;problema ! la aplicacion de valor a los identificadores tambien
-     ;cae en este caso y no cumple el patrón:
+     ; problema guardar en la funcion el closure del ambiente
  
      (match fun-expr
        [(fun ids body)((interp fun-expr env)(map (λ (id a)
              (match id
                [(list 'lazy x) (exprV a env (box #f))]
-               [ _ (strict (interp a env))])) ids arg-expr-list))]
+               [ _ (match a [(structV ame b c)  a]
+                            [_ (strict (interp a env))])])) ids arg-expr-list))]
        [(id name)((interp fun-expr env) (map (lambda(x) (interp x env)) arg-expr-list))])]
-     ;(def (fun ids body) fun-expr)
-     ;((interp fun-expr env)
-      ;(map (λ (id a)
-         ;    (match id
-          ;     [(list 'lazy x) (exprV a env (box #f))]
-           ;    [ _ (strict (interp a env))])) ids arg-expr-list))]
     
     ; primitive application
     [(prim-app prim arg-expr-list)

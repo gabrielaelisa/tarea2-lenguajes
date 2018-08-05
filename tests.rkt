@@ -171,13 +171,13 @@
                                                 (list 2 (structV 'List 'Empty empty))))))
        "{list 1 2}" )
 
-  )
+  
 ;;;;;;;;;;;;;;;;;;;;
 ;EVALUACIÓN PEREZOSA
 ;;;;;;;;;;;;;;;;;;;;
 
 ;;; call-by-need tests 
-
-
-
+(test/exn  (run '{{fun {x  y} x} 1 {/ 1 0}}) "/: division by zero")
+(test (run '{{fun {x  {lazy y}} x} 1 {/ 1 0}}) 1)
+)
 

@@ -143,41 +143,25 @@
     ; identifier
     [(id x) (env-lookup x env)]
     
-    ; function (notice the meta interpretation)
     [(fun ids body)
-     (λ (arg-vals)
-       (interp body (extend-env ids arg-vals env)))]
-    
+     
+    (closureV ids (λ (arg-vals)
+       (interp body (extend-env ids arg-vals env))) env)]
     ; application
     [(app fun-expr arg-expr-list)
      ; problema guardar en la funcion el closure del ambiente
-     (match fun-expr
-       [(fun ids body)((interp fun-expr env)
+     (match (strict(interp fun-expr env))
+       [(closureV ids body cl-env)(body
            (map (λ (id a)
              (match id
                [(list 'lazy x) (exprV a env (box #f))]
                [ _  (strict(interp a env))])) ids arg-expr-list))]
-       
-       [(id i) (match (env-lookup i env)
-                 [(closureV fun params env) (displayln "lookup")
-                  (fun
-                  (map (λ (id a)
-                         (match id
-                           [(list 'lazy x) (displayln "lookup") (exprV a env (box #f))]
-                           [else
-                            (match a
-                                              [(structV val b c) a ]
-                                              [else (strict (interp a env))])])) params arg-expr-list))]
-                 [(list 'lazy x) (interp fun-expr env)(exprV arg-expr-list env (box #f))]
-                 [ _ (interp fun-expr env)(map (lambda(x) (interp x env)) arg-expr-list) ])])]
-       
-                  
-
-        #;((interp fun-expr env)
+       [_
+       (match fun-expr
+         [(id i) ((interp fun-expr env)
                   (match (env-lookup i env)
                    [(list 'lazy x) (exprV arg-expr-list env (box #f))]
-                   [ _ (map (lambda(x) (interp x env)) arg-expr-list) ]))
-           
+                   [ _ (map (lambda(x) (interp x env)) arg-expr-list) ]))])])]
     
     ; primitive application
     [(prim-app prim arg-expr-list)
@@ -201,6 +185,7 @@
     [(dfine id val-expr)
      ;;; agregado
      (match id
+       ;;; no se si es necesario
        [(list 'lazy x) (update-env! x (exprV val-expr env (box #f)) env)]
        [_ (update-env! id (interp val-expr env) env)])]
     [(datatype name variants)
@@ -224,14 +209,8 @@
   (def params (variant-params var))
 
   ;; variant data constructor, eg. Zero, Succ
-  #;(define (fun args params env)
-                  (if ( = (length params) 0)
-                      (list)
-                      (if (match (first params) [(list 'lazy x) #t][_ #f])
-                          (append (exprV (first args) env (box #f)) (fun (rest args) (rest params)))
-                          (append (first args) (fun (rest args) (rest params))))
-                      ))
-  (update-env! varname (closureV (λ (args) (structV name varname args)) params env) env)
+
+  (update-env! varname (closureV params (λ (args) (structV name varname args)) env) env)
   ;; variant predicate, eg. Zero?, Succ?
   (update-env! (string->symbol (string-append (symbol->string varname) "?"))
                (λ (v) (symbol=? (structV-variant (first v)) varname))
@@ -361,7 +340,7 @@ update-env! :: Sym Val Env -> Void
 ; tipo de dato Val visto en clases
 (deftype Val
   (numV n)
-  (closureV arg body env)
+  (closureV fun body env)
   (exprV expr env cache))
 
 ; funcio strict vista en clases 04/26

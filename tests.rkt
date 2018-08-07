@@ -199,6 +199,28 @@
           {stream-hd {stream-tl ones}}}) 1)
 
 ;;;; parte 2
+ (test (run `{local ,stream-lib
+          {local {,ones ,stream-take}
+            {stream-take 10 ones}}}) "{list 1 1 1 1 1 1 1 1 1 1}")
+;;; parte 3
+(test  (run `{local ,stream-lib
+          {local {,ones ,stream-zipWith}
+            {stream-take 10
+                         {stream-zipWith
+                          {fun {n m}
+                               {+ n m}}
+                          ones
+                          ones}}}}) "{list 2 2 2 2 2 2 2 2 2 2}")
+  
+(test  (run `{local ,stream-lib
+          {local {,ones ,stream-zipWith}
+            {stream-take 5
+                         {stream-zipWith
+                          {fun {n m}
+                               {- n m}}
+                          ones
+                          ones}}}}) "{list 0 0 0 0 0}")
+ 
   )
 
 

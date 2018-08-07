@@ -384,12 +384,18 @@ update-env! :: Sym Val Env -> Void
 (def stream-tl '{define stream-tl {fun {s} {match s
                                              {case {stream head tail} => tail}
                                              {case _ => s}}}})
-; etrega los primeros n valores del stream
+; entrega los primeros n valores del stream
 (def stream-take '{define stream-take {fun {n s}
-                                           {match n
-                                             {case 0 => {Empty}}
-                                             {case n => {Cons {stream-hd s} {stream-take {{- n 1} {stream-tl s}}}}
-                                               }}}})
+                                           {match {zero? n}
+                                             {case #t => {Empty}}
+                                             {case #f => {Cons {stream-hd s} {stream-take {- n 1} {stream-tl s}}}}
+                                               }}})
+
+; evaluació de ua fucio e dos streams -> lista
+(def stream-zipWith '{define stream-zipWith {fun {f s1 s2}
+                                                 {stream {f {stream-hd s1} {stream-hd s2}}
+                                                       {stream-zipWith f {stream-tl s1} {stream-tl s2}}}}})
+
 ;definicio de stream-lib dada
 (def stream-lib (list stream-data
                       make-stream

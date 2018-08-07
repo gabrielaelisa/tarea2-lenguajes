@@ -420,4 +420,5 @@ update-env! :: Sym Val Env -> Void
                       make-stream
                       stream-hd
                       stream-tl
-                      stream-take))
+                      stream-take
+                      ))

@@ -161,7 +161,7 @@
               {case {list a b} => #f}}) #t
                                         )
 ;; test for run (Listas parte 5)
-  (test (run '{list 1 4 6}) "{list 1 4 6}" )
+ (test (run '{list 1 4 6}) "{list 1 4 6}" )
  (test (run '{list {list 1 3} 4 6}) "{list {list 1 3} 4 6}" )
   
 ;; tests for pretty printing(Listas parte 5)
@@ -170,7 +170,7 @@
                                  (list 1 (structV 'List 'Cons
                                                 (list 2 (structV 'List 'Empty empty))))))
        "{list 1 2}" )
-
+(test (run '{list 1 2 3}) "{list 1 2 3}")
   
 ;;;;;;;;;;;;;;;;;;;;
 ;EVALUACIÓN PEREZOSA
@@ -191,8 +191,6 @@
                   {C {lazy a}}}
                 {define x {C {/ 1 0}}}}
           {T? x}}) #t)
-
-  
 
 ;;; stream testings
   
@@ -245,6 +243,10 @@
             {stream-take 5 {stream-zipWith
                           {fun {n m}
                                {+ n m}} fibs fibs}}}}) "{list 2 2 4 6 10}")
+
+ (test (run `{local ,stream-lib {local {,ones ,stream-zipWith ,fibs}
+            {stream-take 5 {stream-zipWith  {fun {n m}
+                               {+ n m}} fibs ones}}}}) "{list 2 2 3 4 6}")
 ;;; parte 5
 
 (test (run `{local ,stream-lib

@@ -241,6 +241,7 @@
                 [(x y) (error "Match failure")]))
 
 ;; run :: s-expr ->number/bool/string
+;; runs program in minischeme+ language
 (define(run prog)
   (define prog_aux (list 'local '{{datatype List 
                   {Empty} 
@@ -361,6 +362,14 @@ update-env! :: Sym Val Env -> Void
          )]
     [ _ v]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;Sreams definiciones
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(def stream-data '{datatype Stream {stream head {lazy tail}}})
+(def make-stream '{define make-stream  {fun {{x} {lazy y}} {stream x y}}})
+(def ones '{define ones {make-stream 1 ones}})
 
-
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Traajado con Streams
+;;;;;;;;;;;;;;;;;;;;;;;;;;
 

@@ -202,6 +202,12 @@
  (test (run `{local ,stream-lib
           {local {,ones ,stream-take}
             {stream-take 10 ones}}}) "{list 1 1 1 1 1 1 1 1 1 1}")
+  
+ (test (run `{local ,stream-lib
+          {local {,ones ,stream-take}
+            {stream-take 5 ones}}}) "{list 1 1 1 1 1}")
+
+  
 ;;; parte 3
 (test  (run `{local ,stream-lib
           {local {,ones ,stream-zipWith}
@@ -220,7 +226,7 @@
                                {- n m}}
                           ones
                           ones}}}}) "{list 0 0 0 0 0}")
- 
+;;; parte 4
   )
 
 

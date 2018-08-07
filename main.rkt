@@ -391,12 +391,19 @@ update-env! :: Sym Val Env -> Void
                                              {case #f => {Cons {stream-hd s} {stream-take {- n 1} {stream-tl s}}}}
                                                }}})
 
-; evaluació de ua fucio e dos streams -> lista
+; evaluación de una fucion en dos streams -> lista
 (def stream-zipWith '{define stream-zipWith {fun {f s1 s2}
                                                  {stream {f {stream-hd s1} {stream-hd s2}}
                                                        {stream-zipWith f {stream-tl s1} {stream-tl s2}}}}})
 
-;definicio de stream-lib dada
+;stream de fibonacci
+
+
+(def stream-aux '{define stream-aux {fun {f0 f1} {stream f1 {stream-aux f1 {+ f0 f1}}}}})
+
+(def fibs '{define fibs {{stream-aux 0 1}}})
+
+;definicion de stream-lib data
 (def stream-lib (list stream-data
                       make-stream
                       stream-hd

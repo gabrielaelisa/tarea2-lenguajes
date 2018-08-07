@@ -401,10 +401,11 @@ update-env! :: Sym Val Env -> Void
 
 (def stream-aux '{define stream-aux {fun {f0 f1} {stream f1 {stream-aux f1 {+ f0 f1}}}}})
 
-(def fibs '{define fibs {{stream-aux 0 1}}})
+(def fibs '{define fibs {stream-aux 0 1}})
 
 ;definicion de stream-lib data
 (def stream-lib (list stream-data
+                      stream-aux
                       make-stream
                       stream-hd
                       stream-tl

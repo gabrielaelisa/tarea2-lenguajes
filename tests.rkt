@@ -227,6 +227,16 @@
                           ones
                           ones}}}}) "{list 0 0 0 0 0}")
 ;;; parte 4
+
+(test (run `{local ,stream-lib
+          {local {,stream-zipWith ,fibs}
+            {stream-take 10 fibs}}}) "{list 1 1 2 3 5 8 13 21 34 55}")
+
+(test (run `{local ,stream-lib
+          {local {,stream-zipWith ,fibs}
+            {stream-take 5 {stream-zipWith
+                          {fun {n m}
+                               {+ n m}} fibs fibs}}}}) "{list 2 2 4 6 10}")
   )
 
 

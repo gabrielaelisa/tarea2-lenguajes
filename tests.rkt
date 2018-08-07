@@ -186,6 +186,19 @@
                 {define x {C {/ 1 0}}}}
           {T? x}}) #t)
 
+  
+
+;;; stream testings
+;;;; parte 1
+(test (run `{local {,stream-data ,make-stream ,stream-hd ,ones}
+{stream-hd ones}}) 1)
+  
+
+(test (run `{local {,stream-data ,make-stream
+                             ,stream-hd ,stream-tl ,ones}
+          {stream-hd {stream-tl ones}}}) 1)
+
+;;;; parte 2
   )
 
 

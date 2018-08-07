@@ -145,8 +145,8 @@
     
     [(fun ids body)
      
-    (closureV ids (λ (arg-vals)
-       (interp body (extend-env ids arg-vals env))) env)]
+    (closureV ids (λ (arg-vals id)
+       (interp body (extend-env id arg-vals env))) env)]
     ; application
     [(app fun-expr arg-expr-list)
      ; problema guardar en la funcion el closure del ambiente
@@ -155,7 +155,10 @@
            (map (λ (id a)
              (match id
                [(list 'lazy x) (exprV a env (box #f))]
-               [ _  (strict(interp a env))])) ids arg-expr-list))]
+               [ _ (strict(interp a env))])) ids arg-expr-list)
+           (map (λ (id)
+                  (match id [(list 'lazy x) x]
+                            [_ id])) ids))]
        [_
        (match fun-expr
          [(id i) ((interp fun-expr env)
@@ -210,7 +213,7 @@
 
   ;; variant data constructor, eg. Zero, Succ
 
-  (update-env! varname (closureV params (λ (args) (structV name varname args)) env) env)
+  (update-env! varname (closureV params (λ (args id) (structV name varname args)) env) env)
   ;; variant predicate, eg. Zero?, Succ?
   (update-env! (string->symbol (string-append (symbol->string varname) "?"))
                (λ (v) (symbol=? (structV-variant (first v)) varname))
@@ -366,10 +369,30 @@ update-env! :: Sym Val Env -> Void
 ;Sreams definiciones
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (def stream-data '{datatype Stream {stream head {lazy tail}}})
-(def make-stream '{define make-stream  {fun {{x} {lazy y}} {stream x y}}})
+(def make-stream '{define make-stream  {fun {x  {lazy y}} {stream x y}}})
 (def ones '{define ones {make-stream 1 ones}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-; Traajado con Streams
+; Trabajando con Streams
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+;entrega la cabeza
+(def stream-hd '{define stream-hd {fun {s} {match s
+                                             {case {stream head tail} => head}
+                                             {case _ => s}}}})
+;entrega la cola
+(def stream-tl '{define stream-tl {fun {s} {match s
+                                             {case {stream head tail} => tail}
+                                             {case _ => s}}}})
+; etrega los primeros n valores del stream
+(def stream-take '{define stream-take {fun {n s}
+                                           {match n
+                                             {case 0 => {Empty}}
+                                             {case n => {Cons {stream-hd s} {stream-take {{- n 1} {stream-tl s}}}}
+                                               }}}})
+;definicio de stream-lib dada
+(def stream-lib (list stream-data
+                      make-stream
+                      stream-hd
+                      stream-tl
+                      stream-take))

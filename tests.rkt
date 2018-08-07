@@ -195,7 +195,9 @@
   
 
 ;;; stream testings
+  
 ;;;; parte 1
+  
 (test (run `{local {,stream-data ,make-stream ,stream-hd ,ones}
 {stream-hd ones}}) 1)
   
@@ -243,6 +245,11 @@
             {stream-take 5 {stream-zipWith
                           {fun {n m}
                                {+ n m}} fibs fibs}}}}) "{list 2 2 4 6 10}")
+;;; parte 5
+
+(test (run `{local ,stream-lib
+               {local {,stream-take ,merge-sort ,fibs ,stream-zipWith}
+                 {stream-take 10 {merge-sort fibs fibs}}}}) "{list 1 1 1 1 2 2 3 3 5 5}")
   )
 
 

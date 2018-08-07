@@ -368,8 +368,12 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;Sreams definiciones
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;define el tipo de dato Stream
 (def stream-data '{datatype Stream {stream head {lazy tail}}})
+
 (def make-stream '{define make-stream  {fun {x  {lazy y}} {stream x y}}})
+
 (def ones '{define ones {make-stream 1 ones}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -403,6 +407,12 @@ update-env! :: Sym Val Env -> Void
 (def stream-aux '{define stream-aux {fun {f0 f1} {stream f1 {stream-aux f1 {+ f0 f1}}}}})
 
 (def fibs '{define fibs {stream-aux 0 1}})
+
+;merge sort de dos streams ordenados
+(def merge-sort '{define merge-sort {fun {s1 s2} {if { > {stream-hd s1} {stream-hd s2}}
+                                                     {stream {stream-hd s2} {merge-sort  s1 {stream-tl s2}}}
+                                                     {stream {stream-hd s1} {merge-sort {stream-tl s1} s2}}}}})
+
 
 ;definicion de stream-lib data
 (def stream-lib (list stream-data

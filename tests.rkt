@@ -178,9 +178,15 @@
 
 ;;; call-by-need tests 
 (test/exn  (run '{{fun {x  y} x} 1 {/ 1 asd}}) "env-lookup: no binding for identifier: asd")
+  
 (test (run '{{fun {x  {lazy y}} x} 1 {/ 1 0}}) 1)
+
+(test (run '{{fun {x  {lazy y} {lazy z}} x} 1 {/ 1 0} {+ 1 y}}) 1)
+  
 (test (run '{local {{define {lazy x} {/ 1 0}}{define y {+ 1 2}}} y}) 3)
+  
 (test (run '{with {{f {fun {{lazy x}  y} y}}} {f {/ 1 0} 3 }}) 3)
+  
 (test(run '{local {{datatype T 
                   {C {lazy a}}}
                 {define x {C {/ 1 0}}}}

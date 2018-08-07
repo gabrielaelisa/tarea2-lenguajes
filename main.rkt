@@ -398,7 +398,8 @@ update-env! :: Sym Val Env -> Void
 
 ;stream de fibonacci
 
-
+;auxiliary function for fibonaccio stram; recibe 2 enteros y etrega la secuencia de fibonacci
+;de estos enteros
 (def stream-aux '{define stream-aux {fun {f0 f1} {stream f1 {stream-aux f1 {+ f0 f1}}}}})
 
 (def fibs '{define fibs {stream-aux 0 1}})

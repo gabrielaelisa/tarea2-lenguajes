@@ -70,7 +70,7 @@
                 {Succ? {pred {Succ {Succ {Zero}}}}}}) #t))
 
 ;tests for extended MiniScheme+ 
-#;(module+ sanity-tests
+(module+ sanity-tests
     (test (run '{local {{datatype Nat 
                   {Zero} 
                   {Succ n}}
@@ -130,9 +130,13 @@
 ;; tests for run (Listas parte 1 y 2)
 
  (test (run '{List? {Empty}}) #t)
+  
  (test (run '{List? {Cons 1 {Cons 2 {Empty}}}}) #t)
+  
  (test (run '{length {Empty}}) 0)
+  
  (test (run '{length {Cons 1 {Cons 2 {Cons 3 {Empty}}}}}) 3)
+  
  (test (run '{length {Cons 1 {Cons 2 {Empty}}}}) 2)
   
 ;; tests for run (Listas parte 3)
@@ -162,7 +166,10 @@
                                         )
 ;; test for run (Listas parte 5)
  (test (run '{list 1 4 6}) "{list 1 4 6}" )
+  
  (test (run '{list {list 1 3} 4 6}) "{list {list 1 3} 4 6}" )
+  
+ (test (run '{list {Cons 1 {Empty}} 4 6}) "{list {list 1} 4 6}" )
   
 ;; tests for pretty printing(Listas parte 5)
 
@@ -192,17 +199,42 @@
                 {define x {C {/ 1 0}}}}
           {T? x}}) #t)
 
+(test(run '{local {{datatype List2 
+                  {Empty1}
+                  {Cons1 a {lazy b}}}
+                {define lista {Cons1 1 {/ 1 0}}}}
+          {match lista
+            {case {Cons1 a b} => a}
+            {case _ => #f}}}) 1)
+
 ;;; stream testings
-  
+
+
+;;;definiciones
+(test (run '{local {{datatype Stream {stream head {lazy tail}}}
+    {define make-stream  {fun {x  {lazy y}} {stream x y}}}
+                    {define ones {make-stream 1 ones}}} {Stream? ones}}) #t)
+
+(test (run '{local {{datatype Stream {stream head {lazy tail}}}
+    {define make-stream  {fun {x  {lazy y}} {stream x y}}}
+                    {define L {Cons 1 2}}} {Stream? L}}) #f)
+
+(test (run '{local {{datatype Stream {stream head {lazy tail}}}
+    {define make-stream  {fun {x  {lazy y}} {stream x y}}}
+                    {define ones {make-stream 1 ones}}} {match ones
+                                                          {case {stream head tail} => head}
+                                                          {case _ => #f}}}) 1)
+        
 ;;;; parte 1
+
   
 (test (run `{local {,stream-data ,make-stream ,stream-hd ,ones}
 {stream-hd ones}}) 1)
   
-
 (test (run `{local {,stream-data ,make-stream
                              ,stream-hd ,stream-tl ,ones}
           {stream-hd {stream-tl ones}}}) 1)
+
 
 ;;;; parte 2
  (test (run `{local ,stream-lib
@@ -252,6 +284,12 @@
 (test (run `{local ,stream-lib
                {local {,stream-take ,merge-sort ,fibs ,stream-zipWith}
                  {stream-take 10 {merge-sort fibs fibs}}}}) "{list 1 1 1 1 2 2 3 3 5 5}")
+(test (run `{local ,stream-lib
+               {local {,stream-take ,merge-sort ,fibs ,stream-zipWith}
+                 {stream-take 8 {merge-sort fibs fibs}}}}) "{list 1 1 1 1 2 2 3 3}")
+(test (run `{local ,stream-lib
+               {local {,ones ,stream-take ,merge-sort ,fibs ,stream-zipWith}
+                 {stream-take 8 {merge-sort ones ones}}}}) "{list 1 1 1 1 1 1 1 1}")
   )
 
 

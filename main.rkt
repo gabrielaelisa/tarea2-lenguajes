@@ -66,6 +66,7 @@
   (constrP ctr patterns)) ; constructor y sub-patrones
 
 ;; parse :: s-expr -> Expr
+;; parses from concrete syntax to abstract
 (define(parse s-expr)
 
  (define (parse-list args)
@@ -317,6 +318,23 @@ update-env! :: Sym Val Env -> Void
 ;Tarea2
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+;;;;;;;;;;;;;;;;;;;;;;
+;LISTAS
+;;;;;;;;;;;;;;;;;;;;;;
+
+;define tipo de dato lista
+(def List '{datatype List 
+                  {Empty} 
+                  {Cons a b}})
+;entrega el largo de una lista
+;length List-> number
+(def length '{define length {fun {l}
+                            {match l
+                              {case {Empty} => 0}
+                              {case {Cons a b} =>  {+ 1 {length b}}}
+                              }}})
+
 ;;pretty-printing: struct -> string
 ;;imprime una estructura en formato string amigable
 (define (pretty-printing expr)
@@ -340,6 +358,7 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Implementacion de lazyness
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
 
 ; tipo de dato Val visto en clases
 (deftype Val
@@ -370,10 +389,15 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;define el tipo de dato Stream
+
 (def stream-data '{datatype Stream {stream head {lazy tail}}})
 
+;crea un Stream,
+;make-stream x y -> Stream x y
 (def make-stream '{define make-stream  {fun {x  {lazy y}} {stream x y}}})
 
+;stream de unos
+; ones: void-> Stream
 (def ones '{define ones {make-stream 1 ones}})
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -381,34 +405,41 @@ update-env! :: Sym Val Env -> Void
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ;entrega la cabeza
+;stream-hd: Stream -> num/bool/struct
 (def stream-hd '{define stream-hd {fun {s} {match s
                                              {case {stream head tail} => head}
                                              {case _ => s}}}})
 ;entrega la cola
+; stream-tl: Stream-> Stream
 (def stream-tl '{define stream-tl {fun {s} {match s
                                              {case {stream head tail} => tail}
                                              {case _ => s}}}})
 ; entrega los primeros n valores del stream
+;stream-take: number Stream -> list
 (def stream-take '{define stream-take {fun {n s}
                                            {match {zero? n}
                                              {case #t => {Empty}}
                                              {case #f => {Cons {stream-hd s} {stream-take {- n 1} {stream-tl s}}}}
                                                }}})
 
-; evaluación de una fucion en dos streams -> lista
+; evaluación de una fucion en dos streams 
+; stream-zipWith : Stream1 Stream2 -> Stream
 (def stream-zipWith '{define stream-zipWith {fun {f s1 s2}
                                                  {stream {f {stream-hd s1} {stream-hd s2}}
                                                        {stream-zipWith f {stream-tl s1} {stream-tl s2}}}}})
 
 ;stream de fibonacci
 
-;auxiliary function for fibonaccio stram; recibe 2 enteros y etrega la secuencia de fibonacci
+;auxiliary function for fibonaccio stream; recibe 2 enteros y etrega la secuencia de fibonacci
 ;de estos enteros
+;stream-aux: number number -> Stream
 (def stream-aux '{define stream-aux {fun {f0 f1} {stream f1 {stream-aux f1 {+ f0 f1}}}}})
 
+;fibs: retorna Stream de fibonacci
 (def fibs '{define fibs {stream-aux 0 1}})
 
 ;merge sort de dos streams ordenados
+;merge-sort : Stream1 Stream2 -> Stream
 (def merge-sort '{define merge-sort {fun {s1 s2} {if { > {stream-hd s1} {stream-hd s2}}
                                                      {stream {stream-hd s2} {merge-sort  s1 {stream-tl s2}}}
                                                      {stream {stream-hd s1} {merge-sort {stream-tl s1} s2}}}}})
